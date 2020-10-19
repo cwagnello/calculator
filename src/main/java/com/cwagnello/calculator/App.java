@@ -16,14 +16,18 @@ public class App {
         try {
             input = new Scanner(System.in);
             while (true) {
-                String userInput = input.nextLine();
-                if (userInput != null && !userInput.isEmpty()) {
-                    Expression expression = new ExpressionParser(userInput).build();
-                    System.out.println(expression.evaluate());
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Expression received: {}", userInput);
-                        LOG.debug("Answer: " + expression.evaluate());
+                try {
+                    String userInput = input.nextLine();
+                    if (userInput != null && !userInput.isEmpty()) {
+                        Expression expression = new ExpressionParser(userInput).build();
+                        System.out.println(expression.evaluate());
+                        LOG.info("Expression received: {}", userInput);
+                        LOG.info("Answer: " + expression.evaluate());
                     }
+                }
+                catch (Exception e) {
+                    System.out.println("Error processing input");
+                    LOG.error("{}", e);
                 }
             }
         }

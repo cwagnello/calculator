@@ -1,5 +1,7 @@
 package com.cwagnello.calculator.expression;
 
+import java.util.Map;
+
 public class Multiplication extends Expression {
     Expression operand1;
     Expression operand2;
@@ -14,4 +16,8 @@ public class Multiplication extends Expression {
         return this.operand1.evaluate() * this.operand2.evaluate();
     }
 
+    @Override
+    public double evaluate(Map<String, Double> variables) {
+        return this.operand1.evaluate(variables) * this.operand2.evaluate(variables);
+    }
 }

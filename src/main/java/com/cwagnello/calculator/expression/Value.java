@@ -1,5 +1,7 @@
 package com.cwagnello.calculator.expression;
 
+import java.util.Map;
+
 public class Value extends Expression {
     private double value;
 
@@ -9,14 +11,19 @@ public class Value extends Expression {
 
     @Override
     public double evaluate() {
-        return this.getValue();
+        return this.value();
     }
 
-    public double getValue() {
+    @Override
+    public double evaluate(Map<String, Double> variables) {
+        return this.value();
+    }
+
+    public double value() {
         return this.value;
     }
 
-    public void setValue(int value) {
+    public void value(int value) {
         this.value = value;
     }
 }

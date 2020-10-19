@@ -47,7 +47,7 @@ public class Token {
 
     @Override
     public String toString() {
-        return value;
+        return "Token: [type: " + this.type() + ", value: " + this.value() + "]";
     }
 
     public Role role() {

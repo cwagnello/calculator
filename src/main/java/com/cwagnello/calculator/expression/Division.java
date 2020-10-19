@@ -1,5 +1,7 @@
 package com.cwagnello.calculator.expression;
 
+import java.util.Map;
+
 public class Division extends Expression {
 
     Expression operand1;
@@ -14,4 +16,10 @@ public class Division extends Expression {
     public double evaluate() {
         return this.operand1.evaluate() / this.operand2.evaluate();
     }
+
+    @Override
+    public double evaluate(Map<String, Double> variables) {
+        return this.operand1.evaluate(variables) / this.operand2.evaluate(variables);
+    }
+
 }

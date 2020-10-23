@@ -6,7 +6,7 @@
 
   <groupId>com.cwagnello.calculator</groupId>
   <artifactId>Calculator</artifactId>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
 
   <name>Calculator</name>
   <url>https://github.com/cwagnello/calculator</url>
@@ -16,7 +16,7 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <logback.version>1.2.3</logback.version>
-    <junit.version>4.12</junit.version>
+    <junit.version>4.13.1</junit.version>
   </properties>
 
   <dependencies>

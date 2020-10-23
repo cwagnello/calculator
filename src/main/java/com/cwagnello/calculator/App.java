@@ -1,12 +1,10 @@
 package com.cwagnello.calculator;
 
-import com.cwagnello.calculator.expression.Expression;
 import com.cwagnello.calculator.parser.ExpressionParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Scanner;
-
 
 public class App {
 
@@ -19,15 +17,15 @@ public class App {
                 try {
                     String userInput = input.nextLine();
                     if (userInput != null && !userInput.isEmpty()) {
-                        Expression expression = new ExpressionParser(userInput).build();
-                        System.out.println(expression.evaluate());
                         LOG.info("Expression received: {}", userInput);
-                        LOG.info("Answer: " + expression.evaluate());
+                        double expression = new ExpressionParser(userInput).evaluate();
+                        System.out.println(expression);
+                        LOG.info("Answer: " + expression);
                     }
                 }
                 catch (Exception e) {
                     System.out.println("Error processing input");
-                    LOG.error("{}", e);
+                    LOG.error("", e);
                 }
             }
         }

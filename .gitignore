@@ -3,3 +3,4 @@ Calculator.iml
 dependency-reduced-pom.xml
 target/
 logs/
+.DS_Store

@@ -3,7 +3,6 @@ package com.cwagnello.calculator.parser;
 import com.cwagnello.calculator.expression.Addition;
 import com.cwagnello.calculator.expression.Division;
 import com.cwagnello.calculator.expression.Expression;
-import com.cwagnello.calculator.expression.Let;
 import com.cwagnello.calculator.expression.Multiplication;
 import com.cwagnello.calculator.expression.Subtraction;
 import com.cwagnello.calculator.expression.Value;
@@ -12,38 +11,105 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
 public class ExpressionParser {
     private static final Logger LOG = LoggerFactory.getLogger(ExpressionParser.class);
     private String input;
+    private Map<String, Double> variables = new HashMap<>();
 
     public ExpressionParser(String input) {
         this.input = input;
     }
 
-    public Expression build() {
+    public double evaluate() {
         List<Token> tokens = ExpressionTokenizer.tokenize(this.input);
-        return buildRecursive(tokens);
+        LOG.debug("Parsing expression: {}", this.input);
+        return evaluate(tokens);
     }
 
-    private Expression buildRecursive(List<Token> tokens) {
-        LOG.debug("Build recursive: {}" + tokens);
+    private double evaluate(List<Token> tokens) {
+        Stack<Token> operations = new Stack<>();
+        Stack<Double> values = new Stack<>();
+
         for (int i = 0; i < tokens.size(); i++) {
-            if (tokens.get(i).role() == Token.Role.BINARY) {
-                return binaryExpression(tokens.get(i).type(), tokens, i);
+            Token t = tokens.get(i);
+            if (t.role() == Token.Role.BINARY) {
+                operations.push(t);
             }
-            else if (tokens.get(i).role() == Token.Role.TRINARY) {
-                return trinaryExpression(tokens.get(i).type(), tokens, i);
+            else if (t.role() == Token.Role.TRINARY) {
+                if (t.type() == Token.Type.LET) {
+                    List<Token> tokensForTrinaryExpression = getTokensForExpression(tokens, i + 1);
+                    LOG.debug("All tokens: {}", tokens);
+                    List<Token> list1 = getTokensForExpression(tokensForTrinaryExpression, i + 1);
+                    i += 1 + list1.size();
+                    List<Token> list2 = getTokensForExpression(tokensForTrinaryExpression, i);
+                    i += list2.size();
+                    List<Token> list3 = getTokensForExpression(tokensForTrinaryExpression, i);
+                    LOG.debug("List1 tokens: {}", list1);
+                    LOG.debug("List2 tokens: {}", list2);
+                    LOG.debug("List3 tokens: {}", list3);
+                    if (!list1.isEmpty() && !list2.isEmpty() && !list3.isEmpty()) {
+                        if (list1.get(0).type() == Token.Type.VARIABLE) {
+                            variables.put(list1.get(0).value(), getExpression(list2).evaluate(variables));
+                        }
+                        LOG.debug("VARIABLES: " + variables);
+                        values.push(getExpression(list3).evaluate(variables));
+                    }
+                }
             }
-            else if (tokens.get(i).type() == Token.Type.INTEGER) {
-                return new Value(Double.parseDouble(tokens.get(i).value()));
+            else if (t.role() == Token.Role.STRUCTURE) {
+                if(t.type() == Token.Type.R_PAREN && values.size() > 1) {
+                    if (!operations.isEmpty()) {
+                        double op2 = values.pop();
+                        double op1 = values.pop();
+                        if (operations.peek().type() == Token.Type.ADD) {
+                            values.push(op1 + op2);
+                        } else if (operations.peek().type() == Token.Type.SUB) {
+                            values.push(op1 - op2);
+                        } else if (operations.peek().type() == Token.Type.MULT) {
+                            values.push(op1 * op2);
+                        } else if (operations.peek().type() == Token.Type.DIV) {
+                            values.push(op1 / op2);
+                        }
+                        operations.pop();
+                    }
+                }
             }
-            else if (tokens.get(i).type() == Token.Type.VARIABLE) {
-                return new Variable(tokens.get(i).value());
+            else if (t.role() == Token.Role.IDENTIFIER) {
+                if (t.type() == Token.Type.INTEGER) {
+                    values.push(Double.parseDouble(t.value()));
+                }
+                else if (t.type() == Token.Type.VARIABLE) {
+                    values.push(variables.get(t.value()));
+                }
             }
         }
-        return null;
+
+        return values.pop();
+    }
+
+    private Expression getExpression(List<Token> tokens) {
+        int index = 0;
+        Token current = tokens.get(index);
+        if (current.role() == Token.Role.BINARY) {
+            return binaryExpression(current.type(), tokens, index);
+        }
+        else if (current.role() == Token.Role.TRINARY) {
+            return new Value(evaluate(tokens));
+        }
+        else if (current.type() == Token.Type.INTEGER) {
+            return new Value(Double.parseDouble(current.value()));
+        }
+        else if (current.type() == Token.Type.VARIABLE) {
+            return new Variable(current.value());
+        }
+        else {
+            throw new IllegalArgumentException("Error parsing expression");
+        }
     }
 
     private Expression binaryExpression(Token.Type type, List<Token> tokens, int index) {
@@ -53,8 +119,8 @@ public class ExpressionParser {
         List<Token> list1 = getTokensForExpression(tokensForBinaryExpression, index + 1);
         index += 1 + list1.size();
         List<Token> list2 = getTokensForExpression(tokensForBinaryExpression, index);
-        Expression op1 = buildRecursive(list1);
-        Expression op2 = buildRecursive(list2);
+        Expression op1 = getExpression(list1);
+        Expression op2 = getExpression(list2);
 
         if (type == Token.Type.ADD) {
             return new Addition(op1, op2);
@@ -69,29 +135,6 @@ public class ExpressionParser {
             return new Division(op1, op2);
         }
 
-        return null;
-    }
-
-    private Expression trinaryExpression(Token.Type type, List<Token> tokens, int index) {
-        List<Token> tokensForTrinayExpression = getTokensForExpression(tokens, index + 1);
-        LOG.debug("All tokens: {}" + tokens);
-        List<Token> list1 = getTokensForExpression(tokensForTrinayExpression, index + 1);
-        index += 1 + list1.size();
-        List<Token> list2 = getTokensForExpression(tokensForTrinayExpression, index);
-        index += list2.size();
-        List<Token> list3 = getTokensForExpression(tokensForTrinayExpression, index);
-        LOG.debug("List1 tokens: {}", list1);
-        LOG.debug("List2 tokens: {}", list2);
-        LOG.debug("List3 tokens: {}", list3);
-        if (type == Token.Type.LET) {
-            if (list1.size() != 1) {
-                throw new IllegalArgumentException("" + list1);
-            }
-            Expression op1 = buildRecursive(list1);
-            Expression op2 = buildRecursive(list2);
-            Expression op3 = buildRecursive(list3);
-            return new Let((Variable)op1, op2, op3);
-        }
         return null;
     }
 
@@ -122,11 +165,11 @@ public class ExpressionParser {
             else if (tokens.get(index).role() == Token.Role.BINARY || tokens.get(index).role() == Token.Role.TRINARY) {
                 isExpression = true;
             }
-            //System.out.println("Adding token to list: " + tokens.get(index));
             tokenList.add(tokens.get(index));
             index++;
         }
         while (index < tokens.size() && (parenCount > 0 || isExpression));
         return tokenList;
     }
+
 }

@@ -67,13 +67,13 @@ public class ExpressionParser {
                         double op2 = values.pop();
                         double op1 = values.pop();
                         if (operations.peek().type() == Token.Type.ADD) {
-                            values.push(op1 + op2);
+                            values.push(new Addition(new Value(op1), new Value(op2)).evaluate());
                         } else if (operations.peek().type() == Token.Type.SUB) {
-                            values.push(op1 - op2);
+                            values.push(new Subtraction(new Value(op1), new Value(op2)).evaluate());
                         } else if (operations.peek().type() == Token.Type.MULT) {
-                            values.push(op1 * op2);
+                            values.push(new Multiplication(new Value(op1), new Value(op2)).evaluate());
                         } else if (operations.peek().type() == Token.Type.DIV) {
-                            values.push(op1 / op2);
+                            values.push(new Division(new Value(op1), new Value(op2)).evaluate());
                         }
                         operations.pop();
                     }

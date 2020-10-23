@@ -54,6 +54,9 @@ public class ExpressionTokenizer {
                         variable += c[i];
                         i++;
                     }
+                    if (c[i] == '(') {
+                        throw new IllegalArgumentException("Invalid input");
+                    }
                     tokens.add(new Token(Token.Type.VARIABLE, variable));
                 }
             }
@@ -70,6 +73,7 @@ public class ExpressionTokenizer {
             }
             else {
                 i++;
+                continue;
             }
 
             if (!tokens.isEmpty()) {

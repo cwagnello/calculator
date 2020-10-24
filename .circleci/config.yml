@@ -7,3 +7,14 @@ workflows:
   maven_test:
     jobs:
       - maven/test # checkout, build, test, and upload test results
+
+jobs:
+  build:
+    steps:
+      - save_cache:
+          paths:
+            - ~/.m2
+      - store_artifacts:
+          path: target/calculator*.jar
+          destination: calculator.jar
+      - run: ./mvnw package -DskipTests

@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.cwagnello.calculator</groupId>
-  <artifactId>Calculator</artifactId>
+  <artifactId>calculator</artifactId>
   <version>0.2.0</version>
 
   <name>Calculator</name>
@@ -107,6 +107,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
+          <finalName>calculator</finalName>
           <excludes>
             <exclude>**/logback.xml</exclude>
           </excludes>

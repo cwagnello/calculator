@@ -21,8 +21,7 @@ jobs:
             key: v1-calculator-{{ checksum "pom.xml" }}
       - run: mvn package -DskipTests
       - store_artifacts:
-          path: target/Calculator*.jar
-          destination: calculator.jar
+          path: ~/target/Calculator*.jar
       - save_cache:
           key: v1-calculator-{{ checksum "pom.xml" }}
           paths:

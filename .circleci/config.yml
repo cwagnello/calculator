@@ -16,13 +16,14 @@ jobs:
     machine:
      image: ubuntu-2004:202010-01
     steps:
+      - checkout
+      - restore_cache:
+            key: v1-calculator-{{ checksum "pom.xml" }}
+      - run: ./mvnw package -DskipTests
+      - store_artifacts:
+          path: target/calculator*.jar
+          destination: calculator.jar
       - save_cache:
           key: v1-calculator-{{ checksum "pom.xml" }}
           paths:
             - ~/.m2
-      - restore_cache:
-            key: v1-calculator-{{ checksum "pom.xml" }}
-      - store_artifacts:
-          path: target/calculator*.jar
-          destination: calculator.jar
-      - run: ./mvnw package -DskipTests
